@@ -64,3 +64,5 @@ env: {}
 
 envConfigMaps: []
 envSecretRefs: []
+
+serviceAccountName: "default"
