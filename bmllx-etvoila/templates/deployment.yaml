@@ -40,6 +40,10 @@ spec:
                   name: bmll-key
                   key: bmll_key
           {{- end }}
+            - name: BMLLX_NOTEBOOK_AREA:
+              value: {{ .Values.notebook.area }}
+            - name: BMLLX_NOTEBOOK_FILE:
+              value: {{ .Values.notebook.file }}
           envFrom:
           {{- range $configmap := .Values.envConfigMaps }}
               - configMapRef:

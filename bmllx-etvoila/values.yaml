@@ -4,6 +4,10 @@
 
 replicaCount: 1
 
+notebook:
+  file: support_plato/MQM_v2.ipynb
+  area: organisation
+
 image:
     repository: 361053095112.dkr.ecr.us-east-1.amazonaws.com/tca
     tag: etvoila
@@ -23,7 +27,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local.dev
+    - host: etvoila-example.lab.bmlldev.com
       paths:
         - /
 
