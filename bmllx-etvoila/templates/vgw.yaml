@@ -1,0 +1,27 @@
+{{- if .Values.vgw.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "bmllx-etvoila.fullname" . }}-vga
+  namespace: istio-system
+  labels:
+{{ include "bmllx-etvoila.labels" . | indent 4 }}
+spec:
+  hosts:
+  {{- range .Values.ingress.hosts }}
+  - {{ .host | quote }}
+  {{- end }}
+  gateways:
+  - {{ .Values.vgw.gatewayname }}
+  http:
+  - match:
+    - uri:
+        prefix: /
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        port:
+          number:  {{ .Values.service.port }}
+        host: {{ include "bmllx-etvoila.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end }}
