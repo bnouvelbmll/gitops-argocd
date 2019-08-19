@@ -1,0 +1,26 @@
+{{- if .Values.dbadminui.ingress.enabled}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "tca-db.fullname" . }}-l4dbadmin-ui
+  labels:
+    app: {{ include "tca-db.name" . }}
+    chart: {{ include "tca-db.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: l4dbadmin-ui
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{ range $key, $value := .Values.dbadminui.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    - http:
+        paths:
+          - path: {{ .Values.dbadminui.ingress.path }}
+            backend:
+              serviceName: {{ include "tca-db.fullname" . }}-l4dbadmin-ui
+              servicePort: http
+      host: {{ .Values.dbadminui.ingress.host }}
+{{- end -}}

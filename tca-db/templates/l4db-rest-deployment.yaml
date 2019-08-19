@@ -1,0 +1,64 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "tca-db.fullname" . }}-postgrest
+  labels:
+    app: {{ include "tca-db.name" . }}
+    chart: {{ include "tca-db.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: postgrest
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "tca-db.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "tca-db.name" . }}
+        release: {{ .Release.Name }}
+        component: postgrest
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-postgrest
+          image: postgrest/postgrest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /
+#              port: http
+          env:
+          - name: PGRST_DB_SCHEMA
+            value: public
+          - name: PGRST_DB_ANON_ROLE
+            value: tca #In production this role should not be the same as the one used for the connection
+          envFrom:
+          - secretRef:
+              name: {{ include "tca-db.fullname" . }}-connectivity
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+

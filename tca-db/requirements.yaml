@@ -1,0 +1,13 @@
+dependencies:
+  - name: postgresql
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    version: 0.13.1
+    condition: postgresql.enabled
+#  - name: cassandra
+#    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+#    version: 0.9.5
+#    condition: cassandra.enabled
+##  - name: scylladb
+#    repository: https://github.com/gnumoreno/scylladb.git
+#    version: 0.13.1
+#    condition: .enabled

@@ -1,0 +1,104 @@
+{{- if .Values.dbadminui.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-serversjson
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "tca-db.name" . }}
+    chart: {{ include "tca-db.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: l4dbadmin-ui
+    appzone: red
+data:
+  servers.json: |-
+    {
+        "Servers": {
+            "1": {
+                "Name": "TCA",
+                "Group": "TCA",
+                "Port": 5432,
+                "Username": "tca",
+                "Password": "tca",
+                "Host": "{{ .Release.Name }}-postgresql.{{ .Release.Namespace }}",
+                "SSLMode": "prefer",
+                "MaintenanceDB": "postgres"
+            }
+        }
+    }
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "tca-db.fullname" . }}-l4dbadmin-ui
+  labels:
+    app: {{ include "tca-db.name" . }}
+    chart: {{ include "tca-db.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: l4dbadmin-ui
+    appzone: red
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "tca-db.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "tca-db.name" . }}
+        release: {{ .Release.Name }}
+        component: l4dbadmin-ui
+      annotations:
+        sidecar.istio.io/inject: "true"
+        iam.amazonaws.com/role: role-arn
+    spec:
+      volumes:
+          -   name: serversjson
+              configMap:
+                name: {{ .Release.Name }}-serversjson
+      containers:
+        - name: {{ .Chart.Name }}-l4dbadmin-ui
+          image: dpage/pgadmin4
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /
+#              port: http
+          env:
+          - name: PGADMIN_DEFAULT_EMAIL
+            value: admin@bmlldev.com
+          - name: PGADMIN_DEFAULT_PASSWORD
+            value: bmlltech
+          volumeMounts:
+            - name: serversjson
+              mountPath: /pgadmin4/servers.json
+              readOnly: true
+              subPath: servers.json
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}
+## Admin UI for postgres

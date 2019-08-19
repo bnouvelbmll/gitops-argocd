@@ -1,0 +1,25 @@
+{{- if .Values.istio.vgwEnabled }}
+{{- $fullName := include "tca-db.fullname" . -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $fullName }}-l4db-adminui-vga
+  namespace: {{ .Release.Namespace }}
+  chart: {{ include "tca-db.chart" . }}
+  release: {{ .Release.Name }}
+  heritage: {{ .Release.Service }}
+spec:
+  hosts:
+  - {{ .Values.dbadminui.ingress.host }}
+  gateways:
+  - private-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        port:
+          number:  5000
+        host: {{ $fullName }}-l4db-adminui.{{ .Release.Namespace }}.svc.cluster.local
+{{- end }}

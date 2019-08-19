@@ -1,0 +1,42 @@
+dbadminui:
+  enabled: true
+  ingress:
+     enabled: true
+     host: admin.lab.bmlldev.com
+     annotations: {}
+     path: /
+
+postgresql:
+  enabled: true
+  ### PostgreSQL User to create.
+  postgresUser: tca
+  ##
+  ## PostgreSQL Password for the new user.
+  ## If not set, a random 10 characters password will be used.
+  postgresPassword: tca
+  ##
+  ## PostgreSQL Database to create.
+  postgresDatabase: tca
+  ##
+  ## Persistent Volume Storage configuration.
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes
+  persistence:
+    ##
+    ## Enable PostgreSQL persistence using Persistent Volume Claims.
+    enabled: false
+    ##
+    ## Persistant class
+    # storageClass: classname
+    ##
+    ## Access mode:
+    accessMode: ReadWriteOnce
+
+#scylladb:
+#  enabled: false
+
+istio:
+  vgwEnabled: false
+
+
+image:
+   imagePullPolicy: Always
